@@ -29,6 +29,7 @@ func TodoCollection(c *mongo.Database) {
 }
 
 func GetAllTodos(c *gin.Context) {
+
 	todos := []Todo{}
 	cursor, err := collection.Find(context.TODO(), bson.M{})
 

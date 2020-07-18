@@ -3,22 +3,22 @@ package controllers
 import (
 	"context"
 	"github.com/gin-gonic/gin"
-	//guuid "github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 	"net/http"
-	//"time"
+
 )
 
 
 type User struct {
-	ID string `json:"_id`
-	Nickname string `json:"nickName`
-	Firstname string `json:"firstName`
-	Lastname string `json:"lastName`
-	Email string `json:"email`
-	Password string `json:"password`
+	ID primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	Nickname 	string `json:"nickName`
+	Firstname 	string `json:"firstName`
+	Lastname	string `json:"lastName`
+	Email 		string `json:"email`
+	Password 	string `json:"password`
 }
 
 // DATABASE INSTANCE
@@ -42,9 +42,9 @@ func GetAllUsers(c *gin.Context) {
 
 	// Iterate through the returned cursor.
 	for cursor.Next(context.TODO()) {
-		var todo User
-		cursor.Decode(&todo)
-		todos = append(todos, todo)
+		var user User
+		cursor.Decode(&user)
+		todos = append(todos, user)
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -54,4 +54,38 @@ func GetAllUsers(c *gin.Context) {
 	})
 	return
 }
+func CreateUser(c *gin.Context) {
+	var user User
+	c.BindJSON(&user)
+	nickname := user.Nickname
+	firstname := user.Firstname
+	lastname := user.Lastname
+	email := user.Email
+	password := user.Password
 
+
+	newUser := User{
+		Nickname  :     nickname,
+		Firstname :     firstname,
+		Lastname :     lastname,
+		Email     :     email,
+		Password  :     password,
+	}
+
+	_, err := collection.InsertOne(context.TODO(), newUser)
+
+	if err != nil {
+		log.Printf("Error while inserting new user into db, Reason: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  http.StatusInternalServerError,
+			"message": "Something went wrong",
+		})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"status":  http.StatusCreated,
+		"message": "user created Successfully",
+	})
+	return
+}

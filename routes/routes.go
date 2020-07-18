@@ -10,6 +10,7 @@ import (
 func Routes(router *gin.Engine) {
 	router.GET("/", welcome)
 	router.GET("/users",controllers.GetAllUsers)
+	router.POST("/user", controllers.CreateUser)
 	router.GET("/todos", controllers.GetAllTodos)
 	router.POST("/todo", controllers.CreateTodo)
 	router.GET("/todo/:todoId", controllers.GetSingleTodo)
