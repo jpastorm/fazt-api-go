@@ -3,10 +3,12 @@ package controllers
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	//guuid "github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 	"net/http"
+	//"time"
 )
 
 
@@ -18,6 +20,7 @@ type User struct {
 	Email string `json:"email`
 	Password string `json:"password`
 }
+
 // DATABASE INSTANCE
 var collection *mongo.Collection
 
@@ -51,3 +54,4 @@ func GetAllUsers(c *gin.Context) {
 	})
 	return
 }
+
