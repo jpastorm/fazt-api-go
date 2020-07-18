@@ -2,15 +2,17 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
+
+	//"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 	"net/http"
 	"time"
 )
-
 
 type User struct {
 	ID primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
@@ -21,6 +23,7 @@ type User struct {
 	Password 	string `json:"password`
 	CreatedAt 	time.Time `json:"created_at"`
 }
+
 //TOKEN
 var tokenUser = "QWERTY"
 // DATABASE INSTANCE
@@ -31,9 +34,18 @@ func UserCollection(c *mongo.Database) {
 }
 func GetAllUsers(c *gin.Context) {
 
+	bearer := c.GetHeader("Authorization")
+	fmt.Println(bearer)
+	if bearer == "" || len(bearer) == 0   {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status":  http.StatusUnauthorized,
+			"message": "No tienes permisos",
+		})
+		return
+	}
 	token := c.Query("token")
 
-	if  &token == nil || len(token) < 0 || token != tokenUser{
+	if  &token == nil || len(token) == 0 || token != tokenUser{
 		log.Printf("No existe el token")
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"status":  http.StatusUnauthorized,

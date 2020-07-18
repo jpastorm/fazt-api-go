@@ -1,16 +1,30 @@
 package routes
 
 import (
+	"fazt-api-go/middlewares"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"fazt-api-go/controllers"
+	"github.com/gin-gonic/gin"
 )
 
 func Routes(router *gin.Engine) {
+
+	router.Use(middlewares.CORSMiddleware())
+
 	router.GET("/", welcome)
-	router.GET("/users",controllers.GetAllUsers)
-	router.POST("/user", controllers.CreateUser)
+
+	jwt := router.Group("/")
+
+	jwt.Use(middlewares.Jwt())
+
+
+
+	jwt.GET("/users",controllers.GetAllUsers)
+		router.POST("/user", controllers.CreateUser)
+
+
+
 	router.GET("/todos", controllers.GetAllTodos)
 	router.POST("/todo", controllers.CreateTodo)
 	router.GET("/todo/:todoId", controllers.GetSingleTodo)
