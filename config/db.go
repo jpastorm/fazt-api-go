@@ -13,7 +13,7 @@ import (
 )
 
 func Connect() {
-	//token := "QWERTY"
+
 	// Database Config
 	clientOptions := options.Client().ApplyURI("mongodb+srv://user:Sistemas.2020@cluster0.eo4if.mongodb.net/faztdb?retryWrites=true&w=majority")
 	client, err := mongo.NewClient(clientOptions)
