@@ -1,6 +1,6 @@
 package graph
 
-import "GQLMONGO/graph/model"
+import "github.com/jpastorm/gqlgen-todos/graph/model"
 
 // This file will not be regenerated automatically.
 //go:generate go run github.com/99designs/gqlgen

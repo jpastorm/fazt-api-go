@@ -7,8 +7,9 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"GQLMONGO/graph"
-	"GQLMONGO/graph/generated"
+
+	"github.com/jpastorm/gqlgen-todos/graph"
+	"github.com/jpastorm/gqlgen-todos/graph/generated"
 )
 
 const defaultPort = "8080"

@@ -1,22 +1,23 @@
 package repository
 
 import (
-	"GQLGO/graph/model"
+
+
 	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"log"
 	"time"
 
-	//"github.com/jpastorm/gqlgen-todos/graph/model"
+	model2 "github.com/jpastorm/gqlgen-todos/graph/model"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type UserRepository interface {
-	Save(user *model.User)
-	FindAll() []*model.User
+	Save(user *model2.User)
+	FindAll() []*model2.User
 }
 type database struct {
 	client *mongo.Client
@@ -27,7 +28,7 @@ const 	DATABASE = "faztdb"
 const 	COLLECTION = "user"
 
 
-func New() UserRepository {
+func New() *database {
 
 	MONGODB := "mongodb+srv://user:Sistemas.2020@cluster0.eo4if.mongodb.net/faztdb?retryWrites=true&w=majority"
 
@@ -48,7 +49,7 @@ func New() UserRepository {
 		client: dbClient,
 	}
 }
-func (db *database) Save(user *model.User) {
+func (db *database) Save(user *model2.User) {
 	//collection := db.client.Database["faztdb"].Collection("user")
 	collection := db.client.Database(DATABASE).Collection(COLLECTION)
 	_,err := collection.InsertOne(context.TODO(), user)
@@ -56,17 +57,17 @@ func (db *database) Save(user *model.User) {
 		log.Fatal(err)
 	}
 }
-func (db *database) FindAll() []*model.User {
+func (db *database) FindAll() []*model2.User {
 	collection := db.client.Database(DATABASE).Collection(COLLECTION)
 	cursor ,err := collection.Find(context.TODO(),bson.D{})
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer cursor.Close(context.TODO())
-	var result []*model.User
+	var result []*model2.User
 	for cursor.Next(context.TODO()){
-		var u *model.User
-		err := cursor.Decode(&w)
+		var u *model2.User
+		err := cursor.Decode(&u)
 		if err != nil {
 			log.Fatal(err)
 		}

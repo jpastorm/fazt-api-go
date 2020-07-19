@@ -4,16 +4,13 @@ package graph
 // will be copied through when generating and any unknown code will be moved to the end.
 
 import (
-	"GQLMONGO/graph/model"
-	"GQLMONGO/repository"
 	"context"
 	"math/rand"
 	"strconv"
-	"GQLMONGO/graph/generated"
 
-	//"github.com/jpastorm/gqlgen-todos/graph/generated"
-	//"github.com/jpastorm/gqlgen-todos/graph/model"
-	//"github.com/jpastorm/gqlgen-todos/repository"
+	"github.com/jpastorm/gqlgen-todos/graph/generated"
+	"github.com/jpastorm/gqlgen-todos/graph/model"
+	"github.com/jpastorm/gqlgen-todos/repository"
 )
 
 var userRepo repository.UserRepository = repository.New()
