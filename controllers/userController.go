@@ -5,6 +5,8 @@ import (
 	"echi/config"
 	"echi/errorGo"
 	"echi/models"
+	"echi/response"
+	"echi/utils"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -15,17 +17,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type content struct {
-	Users    []models.User `json:"data"`
-	Response string        `json:"response"`
-	Status   int           `json:"Status"`
-}
-
 var collection = config.Connect().Collection("user")
 
 func AllUser(c echo.Context) error {
 
-	chanel := make(chan []byte)
+	channel := make(chan []byte)
 
 	var response string
 
@@ -34,8 +30,8 @@ func AllUser(c echo.Context) error {
 
 	if &limit == nil || len(limit) == 0 || &page == nil || len(page) == 0 {
 
-		go getAllUser(c, chanel)
-		response = string(<-chanel)
+		go getAllUser(c, channel)
+		response = string(<-channel)
 
 	} else {
 
@@ -43,13 +39,13 @@ func AllUser(c echo.Context) error {
 		var p int64
 		fmt.Sscan(limit, &l)
 		fmt.Sscan(page, &p)
-		go getLimitUser(c, l, p, chanel)
-		response = string(<-chanel)
+		go getLimitUser(c, l, p, channel)
+		response = string(<-channel)
 	}
 	return c.String(http.StatusOK, response)
 }
 
-func getAllUser(c echo.Context, chanel chan []byte) {
+func getAllUser(c echo.Context, channel chan []byte) {
 
 	var users []models.User
 
@@ -66,23 +62,42 @@ func getAllUser(c echo.Context, chanel chan []byte) {
 		users = append(users, user)
 	}
 
-	resJson := &content{
+	resJson := &response.ResponseUser{
 		Users:    users,
 		Response: "Success",
 		Status:   200,
 	}
+
 	response, _ := json.Marshal(resJson)
-	chanel <- response
+	channel <- response
 
 }
-func getLimitUser(c echo.Context, limit int64, page int64, chanel chan []byte) {
-	skips := limit * (page - 1)
-	var users []models.User
+func getLimitUser(c echo.Context, limit int64, page int64, channel chan []byte) {
+
+	var previusPage int64
+	if page == 0 || page < 0 || page == 1 {
+		page = 1
+		previusPage = 1
+	} else {
+		previusPage = page
+	}
+
+	limit, skips := utils.GetPages(limit, page)
+
 	findOpts := options.Find()
 	findOpts.SetLimit(limit)
 	findOpts.SetSkip(skips)
 
+	var users []models.User
+
 	cursor, err := collection.Find(context.TODO(), bson.D{}, findOpts)
+	count, err := collection.CountDocuments(context.TODO(), bson.M{})
+
+	var totalPage int64
+	totalPage = count / limit
+	if totalPage%limit != 0 {
+		totalPage++
+	}
 
 	errorGo.PanicError(err)
 
@@ -94,14 +109,20 @@ func getLimitUser(c echo.Context, limit int64, page int64, chanel chan []byte) {
 
 		users = append(users, user)
 	}
-
-	resJson := &content{
-		Users:    users,
-		Response: "Success",
-		Status:   200,
+	pages := &response.Page{
+		NextPage:     page + 1,
+		PreviousPage: previusPage - 1,
+		TotalPage:    totalPage,
+	}
+	resJson := &response.ResponseUser{
+		Users:     users,
+		TotalUser: count,
+		Response:  "Success",
+		Status:    200,
+		Pages:     *pages,
 	}
 	response, _ := json.Marshal(resJson)
-	chanel <- response
+	channel <- response
 }
 func CreateUser(c echo.Context) error {
 

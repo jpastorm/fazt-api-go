@@ -39,7 +39,7 @@ func Connect() *mongo.Database {
 	} else {
 		log.Println("Connected!")
 	}
-	db := client.Database("faztdb")
+	db := client.Database(dbName)
 	//controllers.UserCollection(db)
 	return db
 }
