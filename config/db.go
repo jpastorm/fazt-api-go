@@ -3,17 +3,27 @@ package config
 import (
 	"context"
 	"log"
+	"os"
 	"time"
 
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 func Connect() *mongo.Database {
-
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	dbUser := os.Getenv("DB_USER")
+	dbName := os.Getenv("DB_NAME")
+	dbPassword := os.Getenv("DB_PASSWORD")
+	dbHost := os.Getenv("DB_HOST")
+	uri := "mongodb+srv://" + dbUser + ":" + dbPassword + "@" + dbHost + "/" + dbName + "?retryWrites=true&w=majority"
 	// Database Config
-	clientOptions := options.Client().ApplyURI("mongodb+srv://user:Sistemas.2020@cluster0.eo4if.mongodb.net/faztdb?retryWrites=true&w=majority")
+	clientOptions := options.Client().ApplyURI(uri)
 	client, err := mongo.NewClient(clientOptions)
 
 	//Set up a context required by mongo.Connect
