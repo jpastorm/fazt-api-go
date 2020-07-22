@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/labstack/echo"
@@ -24,7 +25,6 @@ func AllUser(c echo.Context) error {
 	channel := make(chan []byte)
 
 	var response string
-
 	limit := c.QueryParam("limit")
 	page := c.QueryParam("page")
 
@@ -35,11 +35,21 @@ func AllUser(c echo.Context) error {
 
 	} else {
 
-		var l int64
-		var p int64
-		fmt.Sscan(limit, &l)
-		fmt.Sscan(page, &p)
-		go getLimitUser(c, l, p, channel)
+		if _, err := strconv.Atoi(limit); err == nil {
+			fmt.Println("LOOKS LIKE A NUMBER")
+			lp, _ := strconv.Atoi(limit)
+			pp, _ := strconv.Atoi(page)
+			l := int64(lp)
+			p := int64(pp)
+			go getLimitUser(c, l, p, channel)
+		} else {
+			lp := 10
+			pp := 1
+			l := int64(lp)
+			p := int64(pp)
+			go getLimitUser(c, l, p, channel)
+		}
+
 		response = string(<-channel)
 	}
 	return c.String(http.StatusOK, response)

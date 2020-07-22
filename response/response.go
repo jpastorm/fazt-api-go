@@ -6,7 +6,7 @@ type ResponseUser struct {
 	Users     []models.User `json:"data"`
 	TotalUser int64         `json:"total_user"`
 	Response  string        `json:"response"`
-	Status    int           `json:"status"`
+	Status    int64         `json:"status"`
 	Pages     Page          `json:"pages"`
 }
 type Page struct {
