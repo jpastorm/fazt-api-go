@@ -1,5 +1,15 @@
 package errorGo
 
+import "log"
+
 func PanicError(err error) {
-	panic(err)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func LogFatalError(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
 }

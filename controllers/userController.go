@@ -7,7 +7,6 @@ import (
 	"echi/models"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 
@@ -61,9 +60,9 @@ func getAllUser(c echo.Context, chanel chan []byte) {
 	for cursor.Next(context.TODO()) {
 		var user models.User
 		err := cursor.Decode(&user)
-		if err != nil {
-			log.Fatal(err)
-		}
+
+		errorGo.LogFatalError(err)
+
 		users = append(users, user)
 	}
 
@@ -84,15 +83,15 @@ func getLimitUser(c echo.Context, limit int64, page int64, chanel chan []byte) {
 	findOpts.SetSkip(skips)
 
 	cursor, err := collection.Find(context.TODO(), bson.D{}, findOpts)
-	if err != nil {
-		panic(err)
-	}
+
+	errorGo.PanicError(err)
+
 	for cursor.Next(context.TODO()) {
 		var user models.User
 		err := cursor.Decode(&user)
-		if err != nil {
-			log.Fatal(err)
-		}
+
+		errorGo.LogFatalError(err)
+
 		users = append(users, user)
 	}
 
