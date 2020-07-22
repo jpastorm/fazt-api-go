@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"echi/config"
+	"echi/errorGo"
 	"echi/models"
 	"encoding/json"
 	"fmt"
@@ -55,9 +56,7 @@ func getAllUser(c echo.Context, chanel chan []byte) {
 
 	cursor, err := collection.Find(context.TODO(), bson.D{})
 
-	if err != nil {
-		panic(err)
-	}
+	errorGo.PanicError(err)
 
 	for cursor.Next(context.TODO()) {
 		var user models.User
