@@ -8,7 +8,6 @@ import (
 	"echi/response"
 	"echi/utils"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -34,22 +33,16 @@ func AllUser(c echo.Context) error {
 		response = string(<-channel)
 
 	} else {
-
-		if _, err := strconv.Atoi(limit); err == nil {
-			fmt.Println("LOOKS LIKE A NUMBER")
-			lp, _ := strconv.Atoi(limit)
-			pp, _ := strconv.Atoi(page)
-			l := int64(lp)
-			p := int64(pp)
+		if utils.IsInteger(limit) && utils.IsInteger(page) {
+			//fmt.Println("LOOKS LIKE A NUMBER")
+			l, _ := strconv.ParseInt(limit, 10, 64)
+			p, _ := strconv.ParseInt(page, 10, 64)
 			go getLimitUser(c, l, p, channel)
 		} else {
-			lp := 10
-			pp := 1
-			l := int64(lp)
-			p := int64(pp)
+			l := int64(10)
+			p := int64(1)
 			go getLimitUser(c, l, p, channel)
 		}
-
 		response = string(<-channel)
 	}
 	return c.String(http.StatusOK, response)
@@ -158,4 +151,31 @@ func CreateUser(c echo.Context) error {
 
 	collection.InsertOne(context.TODO(), newUser)
 	return c.JSON(http.StatusCreated, newUser)
+}
+
+func LoginUser(c echo.Context) error {
+
+	var user models.User
+	var responseBody response.Response
+	if err := c.Bind(&user); err != nil {
+		return c.JSON(500, &user)
+	}
+	/* email := user.Email
+	 */
+	/* 	fmt.Println("Nickname" + nickname)
+	   	fmt.Println("email" + email)
+	   	fmt.Println("password" + password)
+	*/
+	user.Nickname = user.Nickname
+	user.Password = user.Password
+	var u models.IUser = user
+	res := u.Login()
+	//fmt.Println(nickname, firstname, lastname, email, password)
+	if res {
+		responseBody = response.Response{"Logueado con exito", 200}
+	} else {
+		responseBody = response.Response{"No pudo loguearse", 500}
+	}
+	return c.JSON(http.StatusCreated, responseBody)
+
 }
