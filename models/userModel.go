@@ -14,7 +14,7 @@ import (
 
 type IUser interface {
 	Login() bool
-	Create() bool
+	Create() (bool, string)
 	Search(value string) (bool, []User)
 }
 
@@ -40,18 +40,21 @@ func (u User) Login() bool {
 	fmt.Println(result)
 	return true
 }
-func (u User) Create() bool {
+func (u User) Create() (bool, string) {
 
-	_, err := collection.InsertOne(context.TODO(), u)
+	result, err := collection.InsertOne(context.TODO(), u) //InsertOne solo nos devuelve un error o el id
 	if err != nil {
-		return false
+		return false, "null"
 	}
-	return true
+	id := result.InsertedID.(primitive.ObjectID).Hex() //Conversion a string
+
+	return true, id
 }
 
 func (u User) Search(value string) (bool, []User) {
 	var users []User
-	filter := bson.M{"nickname": value}
+	//filter := bson.M{"nickname": value}
+	filter := bson.D{{"nickname", primitive.Regex{Pattern: value, Options: ""}}}
 	result, _ := collection.Find(context.TODO(), filter)
 
 	for result.Next(context.TODO()) {
