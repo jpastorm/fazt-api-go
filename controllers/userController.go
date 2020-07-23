@@ -128,20 +128,20 @@ func CreateUser(c echo.Context) error {
 
 	var user models.User
 
-	var responseBody response.Response
+	var ResponseUserId response.ResponseUserId
 
 	if err := c.Bind(&user); err != nil {
 		return c.JSON(500, &user)
 	}
 	var u models.IUser = user
-	res := u.Create()
+	ok, id := u.Create()
 
-	if res {
-		responseBody = response.Response{"Logueado con exito", 200}
+	if ok {
+		ResponseUserId = response.ResponseUserId{id, "El usuario fue creado", 201}
 	} else {
-		responseBody = response.Response{"No pudo loguearse", 500}
+		ResponseUserId = response.ResponseUserId{id, "No pudo crearse el usuario", 500}
 	}
-	return c.JSON(http.StatusCreated, responseBody)
+	return c.JSON(http.StatusCreated, ResponseUserId)
 
 }
 
@@ -169,13 +169,13 @@ func LoginUser(c echo.Context) error {
 func SearchUser(c echo.Context) error {
 	value := c.Param("value")
 	var user models.User
-	var ResponseOneUser response.ResponseOneUser
+	var ResponseManyUsers response.ResponseManyUsers
 	var u models.IUser = user
 	success, res := u.Search(value)
 	if success {
-		ResponseOneUser = response.ResponseOneUser{res, "Exito en busqueda", 200}
+		ResponseManyUsers = response.ResponseManyUsers{res, "Exito en busqueda", 200}
 	} else {
-		ResponseOneUser = response.ResponseOneUser{res, "Error de Busqueda", 500}
+		ResponseManyUsers = response.ResponseManyUsers{res, "Error de Busqueda", 500}
 	}
-	return c.JSON(http.StatusCreated, ResponseOneUser)
+	return c.JSON(http.StatusCreated, ResponseManyUsers)
 }
