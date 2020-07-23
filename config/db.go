@@ -17,13 +17,14 @@ func Connect() *mongo.Database {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	dbUser := os.Getenv("DB_USER")
+	//dbUser := os.Getenv("DB_USER")
 	dbName := os.Getenv("DB_NAME")
-	dbPassword := os.Getenv("DB_PASSWORD")
-	dbHost := os.Getenv("DB_HOST")
-	uri := "mongodb+srv://" + dbUser + ":" + dbPassword + "@" + dbHost + "/" + dbName + "?retryWrites=true&w=majority"
+	//dbPassword := os.Getenv("DB_PASSWORD")
+	//dbHost := os.Getenv("DB_HOST")
+	//uri := "mongodb+srv://" + dbUser + ":" + dbPassword + "@" + dbHost + "/" + dbName + "?retryWrites=true&w=majority"
+	urilocal := "mongodb://localhost:27017"
 	// Database Config
-	clientOptions := options.Client().ApplyURI(uri)
+	clientOptions := options.Client().ApplyURI(urilocal) //AQUI COLOCAMOS LA URL DE CONEXION
 	client, err := mongo.NewClient(clientOptions)
 
 	//Set up a context required by mongo.Connect
