@@ -15,6 +15,7 @@ type Page struct {
 	TotalPage    int64 `json:"totalpage,omitempty" bson:"totalpage,omitempty"`
 }
 
+
 type ResponseOneUser struct {
 	Users     []models.User   `json:"data,omitempty" bson:"data,omitempty"`
 	Response  string        `json:"response"`

@@ -5,6 +5,7 @@ import (
 	"echi/config"
 	"echi/errorGo"
 
+
 	"fmt"
 	"time"
 
@@ -17,6 +18,7 @@ type IUser interface {
 	Create() bool
 	Search(value string) (bool, []User)
 }
+
 type User struct {
 	ID        primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
 	Nickname  string             `json:"nickName,omitempty"`
@@ -63,4 +65,26 @@ func (u User) Search(value string) (bool, []User) {
 	}
 
 	return true, users
+}
+
+var collection = config.Connect().Collection("user")
+
+func (u User) Login() bool {
+	var result User
+	filter := bson.M{"nickname": u.Nickname, "password": u.Password}
+	err := collection.FindOne(context.TODO(), filter).Decode(&result)
+	if err != nil {
+		return false
+	}
+	fmt.Println(result)
+	return true
+}
+func (u User) Create() bool {
+
+	_, err := collection.InsertOne(context.TODO(), u)
+	if err != nil {
+		return false
+	}
+
+	return true
 }
