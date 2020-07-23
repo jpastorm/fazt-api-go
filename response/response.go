@@ -15,13 +15,21 @@ type Page struct {
 	TotalPage    int64 `json:"totalpage,omitempty" bson:"totalpage,omitempty"`
 }
 
-
-type ResponseOneUser struct {
-	Users     []models.User   `json:"data,omitempty" bson:"data,omitempty"`
-	Response  string        `json:"response"`
-	Status    int64         `json:"status"`
+type ResponseManyUsers struct {
+	Users    []models.User `json:"data,omitempty" bson:"data,omitempty"`
+	Response string        `json:"response"`
+	Status   int64         `json:"status"`
 }
-
+type ResponseOneUser struct {
+	Users    models.User `json:"data,omitempty" bson:"data,omitempty"`
+	Response string      `json:"response"`
+	Status   int64       `json:"status"`
+}
+type ResponseUserId struct {
+	IdUser   string `json:"iduser,omitempty" bson:"iduser,omitempty"`
+	Response string `json:"response"`
+	Status   int64  `json:"status"`
+}
 type Response struct {
 	Message string `json:"Message,omitempty" bson:"Message,omitempty"`
 	Status  int    `json:"Status,omitempty" bson:"Status,omitempty"`
