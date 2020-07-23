@@ -7,8 +7,11 @@ import (
 )
 
 func Routes(e *echo.Echo) {
-	e.GET("/users", controllers.AllUser)
-	e.POST("/user", controllers.CreateUser)
-	e.POST("/login", controllers.LoginUser)
-	e.GET("/search/:value", controllers.SearchUser)
+
+	g := e.Group("/user")
+	g.GET("", controllers.AllUser)
+	g.POST("", controllers.CreateUser)
+	g.POST("/login", controllers.LoginUser)
+	g.GET("/search/:value", controllers.SearchUser)
+
 }

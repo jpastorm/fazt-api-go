@@ -5,7 +5,6 @@ import (
 	"echi/config"
 	"echi/errorGo"
 
-
 	"fmt"
 	"time"
 
@@ -15,7 +14,7 @@ import (
 
 type IUser interface {
 	Login() bool
-	Create() bool
+	Create() (bool, string)
 	Search(value string) (bool, []User)
 }
 
@@ -41,50 +40,31 @@ func (u User) Login() bool {
 	fmt.Println(result)
 	return true
 }
-func (u User) Create() bool {
+func (u User) Create() (bool, string) {
 
-	_, err := collection.InsertOne(context.TODO(), u)
+	result, err := collection.InsertOne(context.TODO(), u) //InsertOne solo nos devuelve un error o el id
 	if err != nil {
-		return false
+		return false, "null"
 	}
-	return true
+	id := result.InsertedID.(primitive.ObjectID).Hex() //Conversion a string
+
+	return true, id
 }
 
 func (u User) Search(value string) (bool, []User) {
 	var users []User
-	filter := bson.M{"nickname": value}
-	result , _ :=collection.Find(context.TODO(), filter)
+	//filter := bson.M{"nickname": value}
+	filter := bson.D{{"nickname", primitive.Regex{Pattern: value, Options: ""}}}
+	result, _ := collection.Find(context.TODO(), filter)
 
 	for result.Next(context.TODO()) {
 		err := result.Decode(&u)
 		errorGo.LogFatalError(err)
 		users = append(users, u)
 	}
-	if len(users) == 0{
+	if len(users) == 0 {
 		return false, users
 	}
 
 	return true, users
-}
-
-var collection = config.Connect().Collection("user")
-
-func (u User) Login() bool {
-	var result User
-	filter := bson.M{"nickname": u.Nickname, "password": u.Password}
-	err := collection.FindOne(context.TODO(), filter).Decode(&result)
-	if err != nil {
-		return false
-	}
-	fmt.Println(result)
-	return true
-}
-func (u User) Create() bool {
-
-	_, err := collection.InsertOne(context.TODO(), u)
-	if err != nil {
-		return false
-	}
-
-	return true
 }
