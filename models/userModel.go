@@ -13,6 +13,7 @@ import (
 
 type IUser interface {
 	Login() bool
+	Create() bool
 }
 
 type User struct {
@@ -28,19 +29,21 @@ type User struct {
 var collection = config.Connect().Collection("user")
 
 func (u User) Login() bool {
-
 	var result User
-	/*
-		fmt.Println("DESDE EL MODELO: " + u.Nickname)
-		fmt.Println("DESDE EL MODELO:" + u.Password) */
-
 	filter := bson.M{"nickname": u.Nickname, "password": u.Password}
-
 	err := collection.FindOne(context.TODO(), filter).Decode(&result)
 	if err != nil {
 		return false
 	}
 	fmt.Println(result)
+	return true
+}
+func (u User) Create() bool {
+
+	_, err := collection.InsertOne(context.TODO(), u)
+	if err != nil {
+		return false
+	}
 
 	return true
 }

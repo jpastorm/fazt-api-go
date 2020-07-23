@@ -10,7 +10,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/labstack/echo"
 	"go.mongodb.org/mongo-driver/bson"
@@ -131,46 +130,34 @@ func CreateUser(c echo.Context) error {
 
 	var user models.User
 
+	var responseBody response.Response
+
 	if err := c.Bind(&user); err != nil {
 		return c.JSON(500, &user)
 	}
-	nickname := user.Nickname
-	firstname := user.Firstname
-	lastname := user.Lastname
-	email := user.Email
-	password := user.Password
+	var u models.IUser = user
+	res := u.Create()
 
-	newUser := models.User{
-		Nickname:  nickname,
-		Firstname: firstname,
-		Lastname:  lastname,
-		Email:     email,
-		Password:  password,
-		CreatedAt: time.Now(),
+	if res {
+		responseBody = response.Response{"Logueado con exito", 200}
+	} else {
+		responseBody = response.Response{"No pudo loguearse", 500}
 	}
+	return c.JSON(http.StatusCreated, responseBody)
 
-	collection.InsertOne(context.TODO(), newUser)
-	return c.JSON(http.StatusCreated, newUser)
 }
 
 func LoginUser(c echo.Context) error {
 
 	var user models.User
+
 	var responseBody response.Response
 	if err := c.Bind(&user); err != nil {
 		return c.JSON(500, &user)
 	}
-	/* email := user.Email
-	 */
-	/* 	fmt.Println("Nickname" + nickname)
-	   	fmt.Println("email" + email)
-	   	fmt.Println("password" + password)
-	*/
-	user.Nickname = user.Nickname
-	user.Password = user.Password
 	var u models.IUser = user
 	res := u.Login()
-	//fmt.Println(nickname, firstname, lastname, email, password)
+
 	if res {
 		responseBody = response.Response{"Logueado con exito", 200}
 	} else {
