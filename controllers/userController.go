@@ -58,9 +58,7 @@ func getAllUser(c echo.Context, channel chan []byte) {
 	for cursor.Next(context.TODO()) {
 		var user models.User
 		err := cursor.Decode(&user)
-
 		errorGo.LogFatalError(err)
-
 		users = append(users, user)
 	}
 
@@ -155,6 +153,7 @@ func LoginUser(c echo.Context) error {
 	if err := c.Bind(&user); err != nil {
 		return c.JSON(500, &user)
 	}
+
 	var u models.IUser = user
 	res := u.Login()
 
@@ -165,4 +164,19 @@ func LoginUser(c echo.Context) error {
 	}
 	return c.JSON(http.StatusCreated, responseBody)
 
+}
+
+func SearchUser(c echo.Context) error {
+	value := c.Param("value")
+	var user models.User
+	var ResponseOneUser response.ResponseOneUser
+	var u models.IUser = user
+	success,res := u.Search(value)
+	fmt.Println(success)
+	if success {
+		ResponseOneUser = response.ResponseOneUser{res, "Exito en busqueda", 200}
+	} else {
+		ResponseOneUser = response.ResponseOneUser{res,"Error de Busqueda", 500}
+	}
+	return c.JSON(http.StatusCreated, ResponseOneUser)
 }
