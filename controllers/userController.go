@@ -171,12 +171,11 @@ func SearchUser(c echo.Context) error {
 	var user models.User
 	var ResponseOneUser response.ResponseOneUser
 	var u models.IUser = user
-	success,res := u.Search(value)
-	fmt.Println(success)
+	success, res := u.Search(value)
 	if success {
 		ResponseOneUser = response.ResponseOneUser{res, "Exito en busqueda", 200}
 	} else {
-		ResponseOneUser = response.ResponseOneUser{res,"Error de Busqueda", 500}
+		ResponseOneUser = response.ResponseOneUser{res, "Error de Busqueda", 500}
 	}
 	return c.JSON(http.StatusCreated, ResponseOneUser)
 }
