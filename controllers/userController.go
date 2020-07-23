@@ -10,7 +10,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
+	"strconv"
+
 	"github.com/labstack/echo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -23,7 +24,6 @@ func AllUser(c echo.Context) error {
 	channel := make(chan []byte)
 
 	var response string
-
 	limit := c.QueryParam("limit")
 	page := c.QueryParam("page")
 
@@ -33,12 +33,16 @@ func AllUser(c echo.Context) error {
 		response = string(<-channel)
 
 	} else {
-
-		var l int64
-		var p int64
-		fmt.Sscan(limit, &l)
-		fmt.Sscan(page, &p)
-		go getLimitUser(c, l, p, channel)
+		if utils.IsInteger(limit) && utils.IsInteger(page) {
+			//fmt.Println("LOOKS LIKE A NUMBER")
+			l, _ := strconv.ParseInt(limit, 10, 64)
+			p, _ := strconv.ParseInt(page, 10, 64)
+			go getLimitUser(c, l, p, channel)
+		} else {
+			l := int64(10)
+			p := int64(1)
+			go getLimitUser(c, l, p, channel)
+		}
 		response = string(<-channel)
 	}
 	return c.String(http.StatusOK, response)
@@ -55,9 +59,7 @@ func getAllUser(c echo.Context, channel chan []byte) {
 	for cursor.Next(context.TODO()) {
 		var user models.User
 		err := cursor.Decode(&user)
-
 		errorGo.LogFatalError(err)
-
 		users = append(users, user)
 	}
 
@@ -127,24 +129,55 @@ func CreateUser(c echo.Context) error {
 
 	var user models.User
 
+	var responseBody response.Response
+
 	if err := c.Bind(&user); err != nil {
 		return c.JSON(500, &user)
 	}
-	nickname := user.Nickname
-	firstname := user.Firstname
-	lastname := user.Lastname
-	email := user.Email
-	password := user.Password
+	var u models.IUser = user
+	res := u.Create()
 
-	newUser := models.User{
-		Nickname:  nickname,
-		Firstname: firstname,
-		Lastname:  lastname,
-		Email:     email,
-		Password:  password,
-		CreatedAt: time.Now(),
+	if res {
+		responseBody = response.Response{"Logueado con exito", 200}
+	} else {
+		responseBody = response.Response{"No pudo loguearse", 500}
+	}
+	return c.JSON(http.StatusCreated, responseBody)
+
+}
+
+func LoginUser(c echo.Context) error {
+
+	var user models.User
+
+	var responseBody response.Response
+	if err := c.Bind(&user); err != nil {
+		return c.JSON(500, &user)
 	}
 
-	collection.InsertOne(context.TODO(), newUser)
-	return c.JSON(http.StatusCreated, newUser)
+	var u models.IUser = user
+	res := u.Login()
+
+	if res {
+		responseBody = response.Response{"Logueado con exito", 200}
+	} else {
+		responseBody = response.Response{"No pudo loguearse", 500}
+	}
+	return c.JSON(http.StatusCreated, responseBody)
+
+}
+
+func SearchUser(c echo.Context) error {
+	value := c.Param("value")
+	var user models.User
+	var ResponseOneUser response.ResponseOneUser
+	var u models.IUser = user
+	success,res := u.Search(value)
+	fmt.Println(success)
+	if success {
+		ResponseOneUser = response.ResponseOneUser{res, "Exito en busqueda", 200}
+	} else {
+		ResponseOneUser = response.ResponseOneUser{res,"Error de Busqueda", 500}
+	}
+	return c.JSON(http.StatusCreated, ResponseOneUser)
 }
