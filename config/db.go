@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -40,7 +41,12 @@ func Connect() *mongo.Database {
 	} else {
 		log.Println("Connected!")
 	}
+
 	db := client.Database(dbName)
-	//controllers.UserCollection(db)
+	///////////
+	///////////CREATE INDEX
+	CUser(db, ctx)
+	fmt.Println("Configuraciones")
+	/////////////
 	return db
 }
