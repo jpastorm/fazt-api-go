@@ -41,7 +41,7 @@ func (u User) Login() bool {
 	return true
 }
 func (u User) Create() (bool, string) {
-
+	u.CreatedAt = time.Now()
 	result, err := collection.InsertOne(context.TODO(), u) //InsertOne solo nos devuelve un error o el id
 	if err != nil {
 		return false, "null"
